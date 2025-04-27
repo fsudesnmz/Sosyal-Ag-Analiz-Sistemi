@@ -48,7 +48,7 @@ Projenin temel bileşenleri şunlardır:
    Projeyi bilgisayarınıza indirmeniz gerekmektedir. Aşağıdaki komut ile GitHub reposunu klonlayabilirsiniz:
 
    ```bash
-   git clone https://github.com/username/repository-name.git
+   git clone https://github.com/fsudesnmz/repository-Sosyal-Ag-Analiz-Sistemi.git
    ```
 
 2. **Veriseti Dosyasını Oluşturun**:  
