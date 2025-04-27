@@ -5,35 +5,35 @@
 
 #define MAX_USERS 100
 
-// Renkler - Red-Black Tree dengesi için kullanýlan renk türleri
-// Red-Black aðacýnda düðümler kýrmýzý veya siyah olarak iþaretlenir
-// Bu renkler, aðacýn dengeli kalmasýný saðlamak için kullanýlýr
+// Renkler - Red-Black Tree dengesi icin kullanilan renk turleri
+// Red-Black agacinda dugumler kirmizi veya siyah olarak isaretlenir
+// Bu renkler, agacin dengeli kalmasini saglamak icin kullanilir
 typedef enum { RED, BLACK } Color;
 
-// Kullanýcý yapýsý (Red-Black Tree düðümü)
-// Her kullanýcý benzersiz bir kimliðe sahip ve aðaçta bir düðüm olarak temsil edilir
-// Kullanýcý, sol ve sað alt düðümlere ve bir üst düðüme iþaretçiler içerir
-// Ayrýca Red-Black Tree algoritmasý için gerekli renk bilgisini tutar
+// Kullanici yapisi (Red-Black Tree dugumu)
+// Her kullanici benzersiz bir kimlige sahip ve agacta bir dugum olarak temsil edilir
+// Kullanici, sol ve sag alt dugumlere ve bir ust dugume isaretciler icerir
+// AyrÄ±ca Red-Black Tree algoritmasÄ± icin gerekli renk bilgisini tutar
 typedef struct User {
-    int id;              // Kullanýcýnýn benzersiz kimlik numarasý
-    struct User *left;   // Sol alt aðaç
-    struct User *right;  // Sað alt aðaç
-    struct User *parent; // Üst düðüm
-    Color color;         // Red-Black dengesi için renk bilgisi
+    int id;              // Kullanicinin benzersiz kimlik numarasi
+    struct User *left;   // Sol alt agac
+    struct User *right;  // Sag alt agac
+    struct User *parent; // Ust dugum
+    Color color;         // Red-Black dengesi icin renk bilgisi
 } User;
 
-// Ýliþki grafý - Kullanýcýlar arasýndaki arkadaþlýk iliþkilerini temsil eder
-// Komþuluk matrisi kullanarak kullanýcýlar arasýndaki baðlantýlarý gösterir
-// Ýki kullanýcý arasýnda bir baðlantý varsa, matristeki ilgili deðer 1 olur
+// Iliski grafi - Kullanicilar arasindaki arkadaslik iliskilerini temsil eder
+// Komsuluk matrisi kullanarak kullanicilar arasindaki baglantilarÄ± gosterir
+// Iki kullanici arasinda bir baglanti varsa, matristeki ilgili deger 1 olur
 typedef struct Graph {
-    int adj[MAX_USERS][MAX_USERS]; // Komþuluk matrisi (baðlantý matrisi)
-    int user_count;                // Sistemdeki toplam kullanýcý sayýsý
-    int ids[MAX_USERS];            // Kullanýcý ID'lerini saklayan dizi
+    int adj[MAX_USERS][MAX_USERS]; // Komsuluk matrisi (baglanti matrisi)
+    int user_count;                // Sistemdeki toplam kullanici sayisi
+    int ids[MAX_USERS];            // Kullanici ID'lerini saklayan dizi
 } Graph;
 Graph graph;
 User *user_tree = NULL;
 
-// --- Red-Black Tree Fonksiyonlarý ---
+// --- Red-Black Tree Fonksiyonlari ---
 
 User* newUser(int id) {
     User *u = (User*)malloc(sizeof(User));
@@ -127,7 +127,7 @@ void insertUser(User **root, int id) {
     fixInsert(root, z);
 }
 
-// --- Graph Fonksiyonlarý ---
+// --- Graph Fonksiyonlari ---
 
 void addUser(int id) {
     graph.ids[graph.user_count++] = id;
@@ -142,7 +142,30 @@ void addFriendship(int id1, int id2) {
     graph.adj[j][i] = 1;
 }
 
-// --- Analiz Fonksiyonlarý ---
+// --- Dosya Okuma Fonksiyonu ---
+
+void loadDataFromFile(const char *filename) {
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        printf("Dosya aÃ§Ä±lamadÄ±.\n");
+        return;
+    }
+
+    char line[256];
+    while (fgets(line, sizeof(line), file)) {
+        char type;
+        int id1, id2;
+        if (sscanf(line, "USER %d", &id1) == 1) {
+            addUser(id1);
+        } else if (sscanf(line, "FRIEND %d %d", &id1, &id2) == 2) {
+            addFriendship(id1, id2);
+        }
+    }
+
+    fclose(file);
+}
+
+// --- Analiz Fonksiyonlari ---
 
 int findIndex(int id) {
     for (int i = 0; i < graph.user_count; i++) {
@@ -181,12 +204,12 @@ int countReachable(int idx, bool visited[]) {
 }
 
 void analyzeAllUsers() {
-    printf("\n--- Tum Kullanicilar Için Analiz ---\n");
+    printf("\n--- Tum Kullanicilar Icin Analiz ---\n");
     for (int u = 0; u < graph.user_count; u++) {
         int user_id = graph.ids[u];
         printf("\nKullanici %d Analizi:\n", user_id);
 
-        // 1. Mesafe 1 arkadaþlar
+        // 1. Mesafe 1 arkadaÅŸlar
         printf("Dogrudan Arkadaslar (Mesafe 1): ");
         for (int v = 0; v < graph.user_count; v++) {
             if (graph.adj[u][v]) {
@@ -195,7 +218,7 @@ void analyzeAllUsers() {
         }
         printf("\n");
 
-        // 2. Mesafe 2 arkadaþlar
+        // 2. Mesafe 2 arkadaÅŸlar
         printf("Mesafe 2 Arkadaslar: ");
         bool visited[MAX_USERS] = { false };
         visited[u] = true;
@@ -212,7 +235,7 @@ void analyzeAllUsers() {
         }
         printf("\n");
 
-        // 3. Ortak arkadaþlar (diðer kullanýcýlarla)
+        // 3. Ortak arkadaslar (diger kullanicilarla)
         for (int other = 0; other < graph.user_count; other++) {
             if (u == other) continue;
             printf("Ortak arkadaslar (%d ve %d): ", user_id, graph.ids[other]);
@@ -227,7 +250,7 @@ void analyzeAllUsers() {
             printf("\n");
         }
 
-        // 4. Etki Alaný
+        // 4. Etki AlanÄ±
         bool visited_influence[MAX_USERS] = { false };
         int reach = countReachable(u, visited_influence);
         printf("Erisebildigi toplam kisi sayisi: %d\n", reach - 1);
@@ -237,27 +260,15 @@ void analyzeAllUsers() {
 // --- Ana Fonksiyon ---
 
 int main() {
-    // Kullanýcýlar
-    addUser(101);
-    addUser(102);
-    addUser(103);
-    addUser(104);
-    addUser(105);
+    // Dosyayi yukle
+    loadDataFromFile("veriseti.txt");
 
-    // Arkadaþlýklar
-    addFriendship(101, 102);
-    addFriendship(101, 103);
-    addFriendship(102, 104);
-    addFriendship(103, 104);
-    addFriendship(104, 105);
-
-    // Tüm analizleri yap
+    // Tum analizleri yap
     analyzeAllUsers();
 
-    // Topluluklarý bul
+    // TopluluklarÄ± bul
     printf("\nTopluluklar:\n");
     findCommunities();
 
     return 0;
 }
-
